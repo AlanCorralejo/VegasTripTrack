@@ -10,10 +10,10 @@ export function Header() {
 
   useEffect(() => {
     // Detect initial theme
-    const isDark = document.documentElement.classList.contains("dark") || 
+    const isDark = document.documentElement.classList.contains("dark") ||
       (localStorage.getItem("theme") === "dark") ||
       (!("theme" in localStorage) && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    
+
     if (isDark) {
       document.documentElement.classList.add("dark");
       setTheme("dark");
@@ -60,9 +60,7 @@ export function Header() {
       </div>
 
       <h1 className="text-base font-black tracking-tight text-foreground flex items-center gap-1">
-        <span>VEGAS</span>
-        <span className="text-primary font-light">TRIP</span>
-        <span>🎰</span>
+        <img src="/logo_header.png" className="w-[100px] " />
       </h1>
 
       <div className="flex items-center gap-1">

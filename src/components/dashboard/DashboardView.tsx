@@ -4,8 +4,7 @@ import React from "react";
 import { Expense, CasinoSession } from "@/services/db";
 import { getCategoryDetails, CATEGORIES } from "@/utils/categories";
 import { formatUSD, getTodayDateString, isDateInThisWeek } from "@/utils/date";
-import { exportToCSV } from "@/utils/csv";
-import { TrendingUp, TrendingDown, DollarSign, Wallet, Calendar, Award, ArrowUpRight, ArrowDownRight, Activity, Download } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Wallet, Calendar, Award, ArrowUpRight, ArrowDownRight, Activity } from "lucide-react";
 
 interface DashboardViewProps {
   expenses: Expense[];
@@ -84,33 +83,21 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
   return (
     <div className="flex flex-col gap-6 pb-8">
       {/* Trip Balance Hero Card */}
-      <div className={`relative overflow-hidden rounded-3xl p-6 text-white shadow-xl transition-all ${
-        tripBalance >= 0 
-          ? "bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-500/20" 
-          : "bg-gradient-to-br from-rose-500 to-red-600 shadow-red-500/20"
-      }`}>
-        <div className="absolute top-0 right-0 -mr-6 -mt-6 h-32 w-32 rounded-full bg-white/10 blur-xl pointer-events-none" />
+      <div className={`${tripBalance >= 0 ? "border-emerald-500" : "border-rose-500"} rounded-3xl p-6 bg-card border border-border shadow-sm transition-all flex flex-col gap-4`}>
         <div className="flex justify-between items-start">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-white/80">Balance General del Viaje</span>
-            <h2 className="text-4xl font-extrabold mt-1 tracking-tight">
+            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Balance General del Viaje</span>
+            <h2 className={`text-4xl font-extrabold mt-1 tracking-tight ${tripBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+              }`}>
               {formatUSD(tripBalance)}
             </h2>
           </div>
-          <button
-            onClick={() => exportToCSV(expenses, casinoSessions)}
-            className="rounded-xl bg-white/20 hover:bg-white/30 text-white p-2.5 transition-all active:scale-95 shadow-sm flex items-center justify-center"
-            title="Exportar datos a CSV"
-          >
-            <Download className="h-5 w-5" />
-          </button>
+          <span className="text-xs bg-secondary px-2.5 py-1 rounded-full font-medium text-muted-foreground">Las Vegas 🇺🇸</span>
         </div>
-        <div className="mt-4 flex items-center justify-between text-sm text-white/90">
-          <div className="flex items-center gap-1">
-            {tripBalance >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-            <span>{tripBalance >= 0 ? "Ganancia Neta" : "Déficit Neto"}</span>
-          </div>
-          <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full font-medium">Las Vegas 🇺🇸</span>
+        <div className={`flex items-center gap-1.5 text-sm font-semibold ${tripBalance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+          }`}>
+          {tripBalance >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+          <span>{tripBalance >= 0 ? "Ganancia Neta" : "Déficit Neto"}</span>
         </div>
       </div>
 
@@ -129,9 +116,8 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
         <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
           <div className="flex items-center justify-between mb-1.5">
             <span className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Casino Neto</span>
-            <div className={`rounded-lg p-1.5 ${
-              totalCasinoProfit >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-            }`}>
+            <div className={`rounded-lg p-1.5 ${totalCasinoProfit >= 0 ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+              }`}>
               <Wallet className="h-4 w-4" />
             </div>
           </div>
@@ -166,8 +152,8 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
             <Award className="h-4.5 w-4.5 text-primary" />
             Gastos por Categoría
           </h3>
-          <button 
-            onClick={() => setActiveTab("expenses")} 
+          <button
+            onClick={() => setActiveTab("expenses")}
             className="text-xs font-bold text-primary hover:underline"
           >
             Ver todos
@@ -196,8 +182,8 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
                     <span className="font-bold text-foreground">{formatUSD(amount)} <span className="text-[10px] text-muted-foreground font-medium">({percentage.toFixed(0)}%)</span></span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-secondary overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full ${cat.color}`} 
+                    <div
+                      className={`h-full rounded-full ${cat.color}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
@@ -228,21 +214,19 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
               const isProfit = act.isProfit;
 
               return (
-                <div 
-                  key={act.id} 
+                <div
+                  key={act.id}
                   className="rounded-xl border border-border bg-card p-3 shadow-sm flex items-center justify-between gap-3"
                 >
                   <div className="flex items-center gap-3 overflow-hidden">
                     {isCasino ? (
-                      <div className={`rounded-full p-2.5 flex-shrink-0 ${
-                        isProfit ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
-                      }`}>
+                      <div className={`rounded-full p-2.5 flex-shrink-0 ${isProfit ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                        }`}>
                         <Award className="h-5 w-5" />
                       </div>
                     ) : (
-                      <div className={`rounded-full p-2.5 flex-shrink-0 ${
-                        getCategoryDetails(act.category || "").color
-                      } text-white`}>
+                      <div className={`rounded-full p-2.5 flex-shrink-0 ${getCategoryDetails(act.category || "").color
+                        } text-white`}>
                         {React.createElement(getCategoryDetails(act.category || "").icon, { className: "h-5 w-5" })}
                       </div>
                     )}
@@ -274,6 +258,6 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
