@@ -249,15 +249,17 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
                       </span>
                     ) : (
                       <span className="text-foreground">
-                        -{formatUSD(act.amount)}
+                        {act.currency === "MXN" && act.originalAmount !== undefined
+                          ? `-$${act.originalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`
+                          : `-${formatUSD(act.amount)}`}
                       </span>
                     )}
-                    {!isCasino && act.currency === "MXN" && act.originalAmount !== undefined && (
-                      <span className="text-[9px] text-muted-foreground font-bold mt-1">
-                        -${act.originalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
+                    {!isCasino && act.currency === "MXN" && (
+                      <span className="text-[9px] text-muted-foreground font-bold mt-1.5">
+                        (-{formatUSD(act.amount)})
                       </span>
                     )}
-                    <span className="text-[10px] text-muted-foreground font-normal capitalize mt-1">
+                    <span className="text-[10px] text-muted-foreground font-normal capitalize mt-1.5">
                       {isCasino ? "Casino" : "Gasto"}
                     </span>
                   </div>

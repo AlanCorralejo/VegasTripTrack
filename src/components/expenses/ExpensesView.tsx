@@ -370,11 +370,13 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <div className="flex flex-col items-end pr-1 leading-none">
                     <span className="text-sm font-extrabold text-foreground">
-                      {formatUSD(exp.amount)}
+                      {exp.currency === "MXN" && exp.originalAmount !== undefined
+                        ? `$${exp.originalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN`
+                        : formatUSD(exp.amount)}
                     </span>
-                    {exp.currency === "MXN" && exp.originalAmount !== undefined && (
-                      <span className="text-[10px] text-muted-foreground font-bold mt-1">
-                        ${exp.originalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
+                    {exp.currency === "MXN" && (
+                      <span className="text-[10px] text-muted-foreground font-bold mt-1.5">
+                        ({formatUSD(exp.amount)})
                       </span>
                     )}
                   </div>
