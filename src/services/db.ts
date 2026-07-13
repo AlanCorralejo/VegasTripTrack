@@ -12,6 +12,9 @@ export interface Expense {
   id: string;
   category: string;
   amount: number;
+  currency?: "USD" | "MXN";
+  originalAmount?: number;
+  exchangeRate?: number;
   date: string;
   notes?: string;
   createdAt?: any;

@@ -45,6 +45,8 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
 
   // Form Field States
   const [amount, setAmount] = useState("");
+  const [currency, setCurrency] = useState<"USD" | "MXN">("USD");
+  const [exchangeRate, setExchangeRate] = useState("17.50");
   const [category, setCategory] = useState("Food");
   const [date, setDate] = useState(todayStr);
   const [notes, setNotes] = useState("");
@@ -61,6 +63,8 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
         try {
           const parsed = JSON.parse(draft);
           setAmount(parsed.amount || "");
+          setCurrency(parsed.currency || "USD");
+          setExchangeRate(parsed.exchangeRate || "17.50");
           setCategory(parsed.category || "Food");
           setDate(parsed.date || todayStr);
           setNotes(parsed.notes || "");
@@ -70,7 +74,9 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
       }
     } else if (isFormOpen && editing) {
       // Set to edited expense fields
-      setAmount(editing.amount.toString());
+      setAmount(editing.originalAmount ? editing.originalAmount.toString() : editing.amount.toString());
+      setCurrency(editing.currency || "USD");
+      setExchangeRate(editing.exchangeRate ? editing.exchangeRate.toString() : "17.50");
       setCategory(editing.category);
       setDate(editing.date);
       setNotes(editing.notes || "");
@@ -80,12 +86,14 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
   // Save Draft
   useEffect(() => {
     if (isFormOpen && !editing) {
-      localStorage.setItem("expense_draft", JSON.stringify({ amount, category, date, notes }));
+      localStorage.setItem("expense_draft", JSON.stringify({ amount, currency, exchangeRate, category, date, notes }));
     }
-  }, [amount, category, date, notes, isFormOpen, editing]);
+  }, [amount, currency, exchangeRate, category, date, notes, isFormOpen, editing]);
 
   const clearForm = () => {
     setAmount("");
+    setCurrency("USD");
+    setExchangeRate("17.50");
     setCategory("Food");
     setDate(todayStr);
     setNotes("");
@@ -105,7 +113,9 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
 
   const handleDuplicate = (expense: Expense) => {
     setEditing(null);
-    setAmount(expense.amount.toString());
+    setAmount(expense.originalAmount ? expense.originalAmount.toString() : expense.amount.toString());
+    setCurrency(expense.currency || "USD");
+    setExchangeRate(expense.exchangeRate ? expense.exchangeRate.toString() : "17.50");
     setCategory(expense.category);
     setDate(todayStr); // set to today's date for duplicated expense
     setNotes(`${expense.notes || ""} (Copia)`.trim());
@@ -123,9 +133,21 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
     }
 
     try {
+      const originalAmt = Number(amount);
+      let convertedUSD = originalAmt;
+      let rate = 1;
+
+      if (currency === "MXN") {
+        rate = Number(exchangeRate) || 17.50;
+        convertedUSD = originalAmt / rate;
+      }
+
       const record = {
         category,
-        amount: Number(amount),
+        amount: Number(convertedUSD.toFixed(2)),
+        currency,
+        originalAmount: originalAmt,
+        exchangeRate: rate,
         date,
         notes: notes.trim(),
       };
@@ -346,9 +368,16 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
                 </div>
 
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <span className="text-base font-extrabold text-foreground pr-1">
-                    {formatUSD(exp.amount)}
-                  </span>
+                  <div className="flex flex-col items-end pr-1 leading-none">
+                    <span className="text-sm font-extrabold text-foreground">
+                      {formatUSD(exp.amount)}
+                    </span>
+                    {exp.currency === "MXN" && exp.originalAmount !== undefined && (
+                      <span className="text-[10px] text-muted-foreground font-bold mt-1">
+                        ${exp.originalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
+                      </span>
+                    )}
+                  </div>
                   
                   {/* Actions (edit, duplicate, delete) */}
                   <div className="flex items-center bg-secondary/80 rounded-lg p-0.5">
@@ -400,11 +429,42 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
         title={editing ? "Editar Gasto" : "Agregar Gasto"}
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          {/* Currency Toggle */}
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+              Divisa
+            </label>
+            <div className="flex bg-secondary p-1 rounded-xl border border-border">
+              <button
+                type="button"
+                onClick={() => setCurrency("USD")}
+                className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  currency === "USD" 
+                    ? "bg-card text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                USD ($)
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrency("MXN")}
+                className={`flex-1 py-2 text-xs font-extrabold rounded-lg transition-all cursor-pointer ${
+                  currency === "MXN" 
+                    ? "bg-card text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                MXN ($)
+              </button>
+            </div>
+          </div>
+
           {/* Amount Field */}
           <div className="flex flex-col gap-1.5">
             <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
               <DollarSign className="h-3.5 w-3.5" />
-              Monto (USD)
+              Monto ({currency})
             </label>
             <input
               type="number"
@@ -417,6 +477,37 @@ export function ExpensesView({ expenses }: ExpensesViewProps) {
               required
             />
           </div>
+
+          {/* Exchange Rate (only if MXN) */}
+          {currency === "MXN" && (
+            <div className="flex flex-col gap-2 p-3.5 bg-secondary/40 border border-border border-dashed rounded-2xl">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wide">
+                  Tipo de Cambio (1 USD = X MXN)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="17.50"
+                  value={exchangeRate}
+                  onChange={(e) => setExchangeRate(e.target.value)}
+                  className="w-full bg-secondary border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:bg-card transition-all font-bold"
+                  required={currency === "MXN"}
+                />
+              </div>
+              
+              {/* Dynamic conversion preview */}
+              {amount && Number(amount) > 0 && (
+                <div className="text-[11px] font-extrabold text-primary flex justify-between px-1 mt-1">
+                  <span>Equivalente en USD:</span>
+                  <span>
+                    {formatUSD(Number(amount) / (Number(exchangeRate) || 17.50))}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Category Field */}
           <div className="flex flex-col gap-1.5">

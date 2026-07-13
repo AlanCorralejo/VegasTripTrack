@@ -68,12 +68,28 @@ export function StatisticsView({ expenses, casinoSessions }: StatisticsViewProps
     categoryTotals[e.category] = (categoryTotals[e.category] || 0) + e.amount;
   });
 
+  const CATEGORY_COLOR_MAP: { [key: string]: string } = {
+    "bg-orange-500": "#f97316",
+    "bg-amber-500": "#f59e0b",
+    "bg-blue-400": "#60a5fa",
+    "bg-amber-700": "#b45309",
+    "bg-yellow-600": "#d97706",
+    "bg-indigo-500": "#6366f1",
+    "bg-slate-800": "#1e293b",
+    "bg-purple-600": "#9333ea",
+    "bg-pink-500": "#ec4899",
+    "bg-teal-500": "#14b8a6",
+    "bg-rose-500": "#f43f5e",
+    "bg-emerald-500": "#10b981",
+    "bg-slate-500": "#64748b",
+  };
+
   const pieData = Object.entries(categoryTotals).map(([catId, amount]) => {
     const details = getCategoryDetails(catId);
     return {
       name: details.label,
       value: amount,
-      color: details.color.replace("bg-", "#").replace("slate-800", "#1e293b").replace("amber-700", "#b45309").replace("yellow-600", "#d97706").replace("orange-500", "#f97316").replace("amber-500", "#f59e0b").replace("blue-400", "#60a5fa").replace("indigo-500", "#6366f1").replace("purple-600", "#9333ea").replace("pink-500", "#ec4899").replace("teal-500", "#14b8a6").replace("rose-500", "#f43f5e").replace("emerald-500", "#10b981").replace("slate-500", "#64748b"), // simple mapping
+      color: CATEGORY_COLOR_MAP[details.color] || "#64748b",
     };
   });
 

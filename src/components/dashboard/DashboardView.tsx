@@ -53,6 +53,8 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
     date: string;
     isProfit?: boolean;
     category?: string;
+    currency?: string;
+    originalAmount?: number;
   }
 
   const activities: ActivityItem[] = [
@@ -64,6 +66,8 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
       amount: e.amount,
       date: e.date,
       category: e.category,
+      currency: e.currency,
+      originalAmount: e.originalAmount,
     })),
     ...casinoSessions.map((s) => ({
       id: s.id,
@@ -238,7 +242,7 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
                     </div>
                   </div>
 
-                  <div className="flex flex-col items-end flex-shrink-0 font-bold text-sm">
+                  <div className="flex flex-col items-end flex-shrink-0 font-bold text-sm leading-none">
                     {isCasino ? (
                       <span className={isProfit ? "text-success" : "text-destructive"}>
                         {isProfit ? "+" : ""}{formatUSD(act.amount)}
@@ -248,7 +252,12 @@ export function DashboardView({ expenses, casinoSessions, setActiveTab }: Dashbo
                         -{formatUSD(act.amount)}
                       </span>
                     )}
-                    <span className="text-[10px] text-muted-foreground font-normal capitalize">
+                    {!isCasino && act.currency === "MXN" && act.originalAmount !== undefined && (
+                      <span className="text-[9px] text-muted-foreground font-bold mt-1">
+                        -${act.originalAmount.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN
+                      </span>
+                    )}
+                    <span className="text-[10px] text-muted-foreground font-normal capitalize mt-1">
                       {isCasino ? "Casino" : "Gasto"}
                     </span>
                   </div>
