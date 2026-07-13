@@ -30,19 +30,21 @@ export interface CasinoSession {
   updatedAt?: any;
 }
 
+const SHARED_TRIP_ID = "viaje_compartido_vegas";
+
 // Get expenses collection path
-export const getExpensesCollection = (userId: string) => {
-  return collection(db, "users", userId, "expenses");
+export const getExpensesCollection = (userId?: string) => {
+  return collection(db, "users", SHARED_TRIP_ID, "expenses");
 };
 
 // Get casino sessions collection path
-export const getCasinoSessionsCollection = (userId: string) => {
-  return collection(db, "users", userId, "casinoSessions");
+export const getCasinoSessionsCollection = (userId?: string) => {
+  return collection(db, "users", SHARED_TRIP_ID, "casinoSessions");
 };
 
 // CRUD for Expenses
 export const addExpenseRecord = async (userId: string, expense: Omit<Expense, "id" | "createdAt" | "updatedAt">) => {
-  const colRef = getExpensesCollection(userId);
+  const colRef = getExpensesCollection(SHARED_TRIP_ID);
   return addDoc(colRef, {
     ...expense,
     amount: Number(expense.amount),
@@ -52,7 +54,7 @@ export const addExpenseRecord = async (userId: string, expense: Omit<Expense, "i
 };
 
 export const updateExpenseRecord = async (userId: string, expenseId: string, expense: Partial<Omit<Expense, "id" | "createdAt" | "updatedAt">>) => {
-  const docRef = doc(db, "users", userId, "expenses", expenseId);
+  const docRef = doc(db, "users", SHARED_TRIP_ID, "expenses", expenseId);
   const updates: any = { ...expense };
   if (expense.amount !== undefined) {
     updates.amount = Number(expense.amount);
@@ -62,13 +64,13 @@ export const updateExpenseRecord = async (userId: string, expenseId: string, exp
 };
 
 export const deleteExpenseRecord = async (userId: string, expenseId: string) => {
-  const docRef = doc(db, "users", userId, "expenses", expenseId);
+  const docRef = doc(db, "users", SHARED_TRIP_ID, "expenses", expenseId);
   return deleteDoc(docRef);
 };
 
 // CRUD for Casino Sessions
 export const addCasinoSessionRecord = async (userId: string, session: Omit<CasinoSession, "id" | "createdAt" | "updatedAt" | "profit">) => {
-  const colRef = getCasinoSessionsCollection(userId);
+  const colRef = getCasinoSessionsCollection(SHARED_TRIP_ID);
   const profit = Number(session.cashOut) - Number(session.buyIn);
   return addDoc(colRef, {
     ...session,
@@ -85,7 +87,7 @@ export const updateCasinoSessionRecord = async (
   sessionId: string, 
   session: Partial<Omit<CasinoSession, "id" | "createdAt" | "updatedAt">>
 ) => {
-  const docRef = doc(db, "users", userId, "casinoSessions", sessionId);
+  const docRef = doc(db, "users", SHARED_TRIP_ID, "casinoSessions", sessionId);
   const updates: any = { ...session };
   
   if (session.buyIn !== undefined) updates.buyIn = Number(session.buyIn);
@@ -97,6 +99,6 @@ export const updateCasinoSessionRecord = async (
 };
 
 export const deleteCasinoSessionRecord = async (userId: string, sessionId: string) => {
-  const docRef = doc(db, "users", userId, "casinoSessions", sessionId);
+  const docRef = doc(db, "users", SHARED_TRIP_ID, "casinoSessions", sessionId);
   return deleteDoc(docRef);
 };

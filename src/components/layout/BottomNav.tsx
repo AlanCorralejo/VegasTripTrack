@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { LayoutDashboard, Receipt, Dices, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Receipt, Dices, BarChart3, Map } from "lucide-react";
 
-export type TabType = "dashboard" | "expenses" | "casino" | "statistics";
+export type TabType = "dashboard" | "expenses" | "casino" | "statistics" | "map";
 
 interface BottomNavProps {
   activeTab: TabType;
@@ -16,6 +16,7 @@ export function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
     { id: "expenses" as TabType, label: "Gastos", icon: Receipt },
     { id: "casino" as TabType, label: "Casino", icon: Dices },
     { id: "statistics" as TabType, label: "Gráficas", icon: BarChart3 },
+    { id: "map" as TabType, label: "Mapa", icon: Map },
   ];
 
   return (

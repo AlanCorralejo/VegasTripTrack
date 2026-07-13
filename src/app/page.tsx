@@ -9,6 +9,7 @@ import { DashboardView } from "@/components/dashboard/DashboardView";
 import { ExpensesView } from "@/components/expenses/ExpensesView";
 import { CasinoView } from "@/components/casino/CasinoView";
 import { StatisticsView } from "@/components/statistics/StatisticsView";
+import { MapView } from "@/components/map/MapView";
 import { LoadingSpinner } from "@/components/ui/LoadingSkeleton";
 
 export default function MainPage() {
@@ -119,6 +120,9 @@ export default function MainPage() {
             )}
             {activeTab === "statistics" && (
               <StatisticsView expenses={expenses} casinoSessions={casinoSessions} />
+            )}
+            {activeTab === "map" && (
+              <MapView />
             )}
           </>
         )}
